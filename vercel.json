@@ -10,7 +10,7 @@
     {
       "src": "/public/(.*)",
       "headers": {
-        "Cache-Control": "v-max, public, immutable"
+        "Cache-Control": "v-max, public"
       },
       "dest": "/public/$1"
     },
@@ -18,8 +18,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "static": {
-    "public": true
-  }
+  ]
 }
