@@ -159,6 +159,9 @@
 </head>
 
 <body class="bg-neutral-100 im-fell relative">
+  <div class="fixed top-4 left-4">
+    <a href="https://x.com/namishh_">x dot com (pls follow)</a>
+  </div>
   <svg class="hand-drawn-grid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%">
     <defs>
       <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
@@ -309,7 +312,6 @@
         canvas.setActiveObject(hat);
         currentHat = hat;
 
-        // Enable buttons
         downloadBtn.disabled = false;
 
         canvas.renderAll();
@@ -317,9 +319,7 @@
     }
 
     document.addEventListener('keydown', function (event) {
-      // Check if Delete or Backspace key is pressed
       if ((event.key === 'Delete' || event.key === 'Backspace') && currentHat) {
-        // Remove the current hat from the canvas
         canvas.remove(currentHat);
         currentHat = null;
         downloadBtn.disabled = true;
@@ -520,7 +520,6 @@
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height;
 
-        // Create a blurry white circle
         const snowflake = new fabric.Circle({
           left: x,
           top: y,
