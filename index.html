@@ -213,8 +213,9 @@
 
     // Populate hat selection
     CHRISTMAS_HATS.forEach((hatUrl, index) => {
+      const resolvedPath = !window.location.hostname.startsWith("namishh.github.io") ? hatUrl.replace("./public", "/public") : hatUrl
       const img = document.createElement('img');
-      img.src = hatUrl;
+      img.src = resolvedPath;
       img.classList.add('disabled');
       img.classList.add('w-20');
       img.classList.add('p-2');
@@ -264,7 +265,12 @@
       // Check if a profile image is uploaded
       if (!backgroundImage) return;
 
-      fabric.Image.fromURL(hatUrl, function (hat) {
+
+      const resolvedPath = !window.location.hostname.startsWith("namishh.github.io") ? hatUrl.replace("./public", "/public") : hatUrl
+      console.log(window.location.hostname)
+
+
+      fabric.Image.fromURL(resolvedPath, function (hat) {
         // Remove previous hat
         if (currentHat) {
           canvas.remove(currentHat);
