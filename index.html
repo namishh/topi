@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Christmas Hat Editor</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    .hand-drawn-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
+    .im-fell {
+      font-family: "IM Fell Great Primer", serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    .hand-drawn-border {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      border: 8px solid transparent;
+      border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 0 L100 0 L100 100 L0 100 Z' fill='none' stroke='%23663311' stroke-width='4' stroke-dasharray='10 5' pathLength='1'/%3E%3C/svg%3E") 30 stretch;
+    }
+
+    .wood-texture {
+      background-image:
+        linear-gradient(45deg, rgba(139, 69, 19, 0.6) 0%, transparent 50%, rgba(139, 69, 19, 0.6) 100%),
+        linear-gradient(-45deg, rgba(101, 67, 33, 0.6) 0%, transparent 50%, rgba(101, 67, 33, 0.6) 100%);
+      background-size: 18px 18px, 18px 18px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #placeholder-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(0, 0, 0, 0.5);
+      font-family: 'IM Fell Great Primer', serif;
+      font-size: 36px;
+      pointer-events: none;
+      z-index: 1;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    #hat-selection {
+      max-height: 600px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #926942 #48341f;
+    }
+
+    ::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    #hat-selection::-webkit-scrollbar-track {
+      background: #48341f;
+    }
+
+    #hat-selection::-webkit-scrollbar-thumb {
+      background-color: #926942;
+      border-radius: 4px;
+    }
+
+    .wooden-placard {
+      position: relative;
+      background: linear-gradient(to right,
+          transparent 0%,
+          rgba(101, 67, 33, 0.1) 10%,
+          transparent 20%,
+          rgba(101, 67, 33, 0.1) 30%,
+          transparent 40%,
+          rgba(101, 67, 33, 0.1) 50%,
+          transparent 60%,
+          rgba(101, 67, 33, 0.1) 70%,
+          transparent 80%,
+          rgba(101, 67, 33, 0.1) 90%,
+          transparent 100%);
+    }
+
+    .wooden-placard::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      height: 10px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='10'%3E%3Cpath d='M0 0 Q10 5, 0 10 M10 0 Q20 5, 10 10 M20 0 Q30 5, 20 10' fill='none' stroke='%23463A2F' stroke-width='2' stroke-dasharray='2,2'/%3E%3C/svg%3E") repeat-x;
+      transform: rotate(180deg);
+    }
+
+    .nail-dot {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background-color: #666;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .nail-dot.top-left {
+      top: 5px;
+      left: 5px;
+    }
+
+    .nail-dot.top-right {
+      top: 5px;
+      right: 5px;
+    }
+
+    .nail-dot.bottom-left {
+      bottom: 5px;
+      left: 5px;
+    }
+
+    .nail-dot.bottom-right {
+      bottom: 5px;
+      right: 5px;
+    }
+
+    .hand-drawn-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral-100 relative">
+  <svg class="hand-drawn-grid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%">
+    <defs>
+      <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+        <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="2,2" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)" />
+  </svg>
+
+  <div class="w-screen h-screen flex justify-center items-center">
+    <div class="flex flex-col">
+      <div class="flex gap-8">
+        <div id="canvas-container" class="relative border-2 border-dotted border-red-600">
+          <div class="absolute h-full w-full bg-neutral-100"></div>
+          <div id="placeholder-text" class="text-black z-[100]">Upload Picture</div>
+          <div class="hand-drawn-border"></div>
+          <canvas id="canvas" width="600" height="600" class="relative z-10 "></canvas>
+        </div>
+        <div class="hat-selection rounded-xl flex bg-[#48341f] p-[3px] flex-col gap-4 wood-texture" id="hat-selection">
+          <h1
+            class="text-center text-white p-2 bg-[#926942] im-fell rounded-md text-xl sticky top-0 z-10 wooden-placard relative">
+            SHOP
+            <div class="nail-dot top-left"></div>
+            <div class="nail-dot top-right"></div>
+            <div class="nail-dot bottom-left"></div>
+            <div class="nail-dot bottom-right"></div>
+          </h1>
+          <!-- Hat images will be dynamically added here -->
+        </div>
+      </div>
+      <div id="controls" class="mt-8 flex gap-8">
+        <button id="download-btn" class="bg-red-600 text-white px-6 py-2 rounded-full disabled:bg-neutral-600"
+          disabled>Download Image</button>
+        <input type="file" id="profile-upload" accept="image/*" hidden>
+        <label class="px-6 z-[20] py-2 rounded-full bg-neutral-200 cursor-pointer border-[1px] border-red-600"
+          for="profile-upload">Upload Picture</label>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CHRISTMAS_HATS = [
+      '/public/hat-1.png', '/public/hat-2.png', '/public/hat-3.png', '/public/hat-4.png', '/public/hat-5.png', '/public/hat-6.png', '/public/hat-7.png', '/public/hat-8.png'
+    ];
+
+    const canvas = new fabric.Canvas('canvas', {
+      selection: false
+    });
+
+    const profileUpload = document.getElementById('profile-upload');
+    const hatSelection = document.getElementById('hat-selection');
+    const downloadBtn = document.getElementById('download-btn');
+    const placeholderText = document.getElementById('placeholder-text');
+    const hatImages = [];
+
+    let backgroundImage = null;
+    let currentHat = null;
+
+    // Populate hat selection
+    CHRISTMAS_HATS.forEach((hatUrl, index) => {
+      const img = document.createElement('img');
+      img.src = hatUrl;
+      img.classList.add('disabled');
+      img.classList.add('w-20');
+      img.classList.add('p-2');
+      img.classList.add('self-center');
+      img.classList.add('cursor-pointer');
+      img.classList.add('hover:scale-110');
+      img.classList.add('transition-transform');
+      img.onclick = () => loadHat(hatUrl);
+      hatSelection.appendChild(img);
+      hatImages.push(img);
+    });
+
+    profileUpload.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        fabric.Image.fromURL(event.target.result, function (img) {
+          const scaleFactor = canvas.width / img.width;
+          img.scale(scaleFactor);
+          img.set({
+            left: canvas.width / 2,
+            top: canvas.height / 2,
+            originX: 'center',
+            originY: 'center',
+            selectable: false,
+            hasControls: false
+          });
+
+          canvas.clear();
+          canvas.add(img);
+          backgroundImage = img;
+
+          // Hide placeholder text
+          placeholderText.style.display = 'none';
+
+          // Enable hat selection
+          hatImages.forEach(img => img.classList.remove('disabled'));
+          canvas.renderAll();
+        });
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    function loadHat(hatUrl) {
+      // Check if a profile image is uploaded
+      if (!backgroundImage) return;
+
+      fabric.Image.fromURL(hatUrl, function (hat) {
+        // Remove previous hat
+        if (currentHat) {
+          canvas.remove(currentHat);
+        }
+
+        // Scale hat to reasonable size
+        const scaleFactor = canvas.width / (hat.width * 3);
+        hat.scale(scaleFactor);
+        hat.set({
+          left: canvas.width / 2,
+          top: canvas.height / 4,
+          originX: 'center',
+          originY: 'center',
+          cornerColor: '#b00b69',
+          cornerStyle: 'circle',
+          borderColor: 'red',
+          cornerSize: 12,
+          selectable: true,
+          hasControls: true,
+          hasBorders: true,
+          transparentCorners: false,
+          lockUniScaling: false, // Allow non-uniform scaling
+          centeredScaling: true // Scale from the center
+        });
+        canvas.add(hat);
+        hat.moveTo(canvas.getObjects().length - 1);  // Move to top layer
+        canvas.setActiveObject(hat);
+        currentHat = hat;
+
+        // Enable buttons
+        downloadBtn.disabled = false;
+
+        canvas.renderAll();
+      });
+    }
+
+    document.addEventListener('keydown', function (event) {
+      // Check if Delete or Backspace key is pressed
+      if ((event.key === 'Delete' || event.key === 'Backspace') && currentHat) {
+        // Remove the current hat from the canvas
+        canvas.remove(currentHat);
+        currentHat = null;
+        downloadBtn.disabled = true;
+
+        // Show placeholder text if no image is present
+        if (!backgroundImage) {
+          placeholderText.style.display = 'block';
+        }
+
+        canvas.renderAll();
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      // Temporarily hide object controls
+      canvas.discardActiveObject();
+      canvas.renderAll();
+
+      // Download image
+      const dataURL = canvas.toDataURL({
+        format: 'png',
+        quality: 1
+      });
+      const link = document.createElement('a');
+      link.download = 'christmas-profile-pic.png';
+      link.href = dataURL;
+      link.click();
+    });
+    // Christmas Lights Effect
+    const christmasLightsBtn = document.createElement('button');
+    christmasLightsBtn.textContent = 'Add Christmas Lights';
+    christmasLightsBtn.classList.add('bg-green-600', 'text-white', 'px-6', 'py-2', 'rounded-full', 'disabled:bg-neutral-600');
+
+    const removeChristmasLightsBtn = document.createElement('button');
+    removeChristmasLightsBtn.textContent = 'Remove Lights';
+    removeChristmasLightsBtn.classList.add('bg-red-600', 'text-white', 'px-6', 'py-2', 'rounded-full', 'disabled:bg-neutral-600');
+    removeChristmasLightsBtn.disabled = true;
+
+    // Add buttons to controls
+    const controlsContainer = document.getElementById('controls');
+    controlsContainer.appendChild(christmasLightsBtn);
+    controlsContainer.appendChild(removeChristmasLightsBtn);
+
+    let christmasLightsGroup = null;
+
+    function generateWirePoints(canvas, yPosition, isTop) {
+      const numberOfPoints = 4; // Random number of points (3 to 7)
+      const wirePoints = [];
+
+      for (let i = 0; i < numberOfPoints; i++) { 
+        let x = Math.random() * canvas.width; // Random x within canvas width
+        if (i == 0) {
+          x = 0
+        } else if (i == numberOfPoints - 1) {
+          console.log("end", canvas.width)
+          x = canvas.width
+        }
+        const y =
+          yPosition + (Math.random() * 60 - 30) * (isTop ? 1 : -1); // Random y offset based on isTop
+
+        wirePoints.push({ x, y });
+      }
+
+      wirePoints.sort((a, b) => a.x - b.x);
+
+      return wirePoints;
+    }
+
+    function createChristmasLights() {
+      // Only add lights if there's a background image
+      if (!backgroundImage) return;
+
+      // Remove existing lights if any
+      if (christmasLightsGroup) {
+        canvas.remove(christmasLightsGroup);
+      }
+
+      christmasLightsGroup = new fabric.Group([], {
+        selectable: false,
+        hasControls: false
+      });
+
+      const lightColors = ['#e02d51', '#2d51e0', '#2de06f', '#e0a42d'];
+
+      const strandCount = Math.floor(Math.random() * 3) + 5; s
+
+      for (let i = 0; i < strandCount; i++) {
+        const isTop = Math.random() < 0.5;
+        const yPosition = isTop ? 40 : canvas.height - 40;
+
+        const wirePoints = generateWirePoints(canvas, yPosition, isTop) 
+
+        const wire = new fabric.Path(
+          `M ${wirePoints[0].x} ${wirePoints[0].y} ` +
+          `C ${wirePoints[1].x} ${wirePoints[1].y}, ${wirePoints[2].x} ${wirePoints[2].y}, ${wirePoints[3].x} ${wirePoints[3].y}`,
+          {
+            stroke: '#333333',
+            strokeWidth: 2,
+            fill: false,
+            selectable: false
+          }
+        );
+
+        christmasLightsGroup.addWithUpdate(wire);
+
+        const lightCount = Math.floor(Math.random() * 10) + 5; // 5-14 lights
+        for (let j = 0; j < lightCount; j++) {
+          const t = j / (lightCount - 1);
+
+          const x = cubicBezier(wirePoints[0].x, wirePoints[1].x, wirePoints[2].x, wirePoints[3].x, t);
+          const y = cubicBezier(wirePoints[0].y, wirePoints[1].y, wirePoints[2].y, wirePoints[3].y, t);
+
+          const lightColor = lightColors[Math.floor(Math.random() * lightColors.length)];
+          const light = new fabric.Circle({
+            left: x,
+            top: y,
+            radius: 4,
+            fill: lightColor,
+            stroke: lightColor,
+            strokeWidth: 2,
+            shadow: new fabric.Shadow({
+              color: lightColor,
+              blur: 10,
+              offsetX: 0,
+              offsetY: 0
+            }),
+            selectable: false
+          });
+
+          christmasLightsGroup.addWithUpdate(light);
+        }
+      }
+
+      canvas.add(christmasLightsGroup);
+
+      canvas.getObjects().forEach((obj, index) => {
+        if (obj !== christmasLightsGroup) {
+          canvas.moveTo(obj, index);
+        }
+      });
+      canvas.moveTo(christmasLightsGroup, canvas.getObjects().length - 1);
+
+      canvas.renderAll();
+
+      christmasLightsBtn.disabled = false;
+      removeChristmasLightsBtn.disabled = false;
+    }
+
+    function removeChristmasLights() {
+      if (christmasLightsGroup) {
+        canvas.remove(christmasLightsGroup);
+        christmasLightsGroup = null;
+        canvas.renderAll();
+
+        christmasLightsBtn.disabled = false;
+        removeChristmasLightsBtn.disabled = true;
+      }
+    }
+
+    function cubicBezier(p0, p1, p2, p3, t) {
+      const u = 1 - t;
+      const tt = t * t;
+      const uu = u * u;
+      const uuu = uu * u;
+      const ttt = tt * t;
+
+      return uuu * p0 +
+        3 * uu * t * p1 +
+        3 * u * tt * p2 +
+        ttt * p3;
+    }
+
+    christmasLightsBtn.addEventListener('click', createChristmasLights);
+    removeChristmasLightsBtn.addEventListener('click', removeChristmasLights);
+
+    profileUpload.addEventListener('change', function () {
+      christmasLightsBtn.disabled = false;
+      removeChristmasLightsBtn.disabled = true;
+    });
+  </script>
+</body>
+
+</html>
