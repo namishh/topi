@@ -361,18 +361,24 @@
           document.querySelector('.cycleSnowfallBtn').addEventListener('click', this.createSnowfall);
 
           document.querySelector('.rbutton').addEventListener('click', () => {
-              this.canvas.remove(this.currentHat);
-              this.currentHat = null;
-              this.backgroundImage = null
-              this.downloadBtn.disabled = true;
+            this.canvas.remove(this.currentHat);
+            this.currentHat = null;
+            this.backgroundImage = null
+            this.downloadBtn.disabled = true;
 
-              // Show placeholder text if no image is present
-              if (!this.backgroundImage) {
-                this.placeholderText.style.display = 'block';
-              }
+            if (!this.backgroundImage) {
+              this.placeholderText.style.display = 'block';
+            }
 
-              this.canvas.clear();
-            })
+            this.canvas.clear();
+          })
+
+          document.querySelector('.canvas-container').addEventListener('click', () => {
+            if (!this.backgroundImage) {
+            this.profileUpload.click();
+            }
+          });
+
         }
 
         handleProfileUpload(e) {
