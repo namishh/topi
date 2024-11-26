@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" href="https://namishh.github.io/topi/public/hat-1.png" type="image/x-image">
   <base href="/topi/">
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&display=swap" rel="stylesheet">
   <style>
@@ -71,10 +72,16 @@
 
     ::-webkit-scrollbar {
       width: 0px;
+      display: none;
     }
 
     #hat-selection::-webkit-scrollbar-track {
       background: #48341f;
+      display: none;
+    }
+
+    #hat-selection {
+          scrollbar-width: none;  /* Firefox */
     }
 
     #hat-selection::-webkit-scrollbar-thumb {
@@ -151,7 +158,7 @@
   </style>
 </head>
 
-<body class="bg-neutral-100 relative">
+<body class="bg-neutral-100 im-fell relative">
   <svg class="hand-drawn-grid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%">
     <defs>
       <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
@@ -182,13 +189,18 @@
           <!-- Hat images will be dynamically added here -->
         </div>
       </div>
-      <div id="controls" class="mt-8 flex gap-8">
-        <button id="download-btn" class="bg-red-600 text-white px-6 py-2 rounded-full disabled:bg-neutral-600"
-          disabled>Download Image</button>
+      <div id="controls" class="mt-8 flex gap-6 hat-selection wood-texture bg-[#48341f] rounded-xl relative p-4 gap-2">
+        <div class="nail-dot top-left"></div>
+        <div class="nail-dot top-right"></div>
+        <div class="nail-dot bottom-left"></div>
+        <div class="nail-dot bottom-right"></div>
+        <button id="download-btn" class="text-white  underline" disabled>Download Image</button>
         <input type="file" id="profile-upload" accept="image/*" hidden>
-        <label class="px-6 z-[20] py-2 rounded-full bg-neutral-200 cursor-pointer border-[1px] border-red-600"
-          for="profile-upload">Upload Picture</label>
-
+        <label class="text-white  cursor-pointer  underline" for="profile-upload">Upload Picture</label>
+        <button class="text-white underline chrisbtn">Lights</button>
+        <button class="text-white underline rembtn">Remove Lights</button>
+        <button class="text-white underline snowfallbtn">Snowfall</button>
+        <button class="text-white underline remsnowfallbtn">Remove Snowfall</button>
       </div>
     </div>
   </div>
@@ -264,10 +276,7 @@
     function loadHat(hatUrl) {
       // Check if a profile image is uploaded
       if (!backgroundImage) return;
-
-
       const resolvedPath = !window.location.hostname.startsWith("namishh.github.io") ? hatUrl.replace("./public", "/public") : hatUrl
-      console.log(window.location.hostname)
 
 
       fabric.Image.fromURL(resolvedPath, function (hat) {
@@ -284,9 +293,9 @@
           top: canvas.height / 4,
           originX: 'center',
           originY: 'center',
-          cornerColor: '#b00b69',
+          cornerColor: '#3b82f6',
           cornerStyle: 'circle',
-          borderColor: 'red',
+          borderColor: '#3b82f6',
           cornerSize: 12,
           selectable: true,
           hasControls: true,
@@ -339,20 +348,13 @@
       link.href = dataURL;
       link.click();
     });
-    // Christmas Lights Effect
-    const christmasLightsBtn = document.createElement('button');
-    christmasLightsBtn.textContent = 'Add Christmas Lights';
-    christmasLightsBtn.classList.add('bg-green-600', 'text-white', 'px-6', 'py-2', 'rounded-full', 'disabled:bg-neutral-600');
+    const christmasLightsBtn = document.querySelector('.chrisbtn');
 
-    const removeChristmasLightsBtn = document.createElement('button');
-    removeChristmasLightsBtn.textContent = 'Remove Lights';
-    removeChristmasLightsBtn.classList.add('bg-red-600', 'text-white', 'px-6', 'py-2', 'rounded-full', 'disabled:bg-neutral-600');
+    const removeChristmasLightsBtn = document.querySelector('.rembtn');
     removeChristmasLightsBtn.disabled = true;
 
     // Add buttons to controls
     const controlsContainer = document.getElementById('controls');
-    controlsContainer.appendChild(christmasLightsBtn);
-    controlsContainer.appendChild(removeChristmasLightsBtn);
 
     let christmasLightsGroup = null;
 
@@ -360,12 +362,11 @@
       const numberOfPoints = 4; // Random number of points (3 to 7)
       const wirePoints = [];
 
-      for (let i = 0; i < numberOfPoints; i++) { 
+      for (let i = 0; i < numberOfPoints; i++) {
         let x = Math.random() * canvas.width; // Random x within canvas width
         if (i == 0) {
           x = 0
         } else if (i == numberOfPoints - 1) {
-          console.log("end", canvas.width)
           x = canvas.width
         }
         const y =
@@ -399,7 +400,7 @@
         const isTop = Math.random() < 0.5;
         const yPosition = isTop ? 40 : canvas.height - 40;
 
-        const wirePoints = generateWirePoints(canvas, yPosition, isTop) 
+        const wirePoints = generateWirePoints(canvas, yPosition, isTop)
 
         const wire = new fabric.Path(
           `M ${wirePoints[0].x} ${wirePoints[0].y} ` +
@@ -484,9 +485,96 @@
     christmasLightsBtn.addEventListener('click', createChristmasLights);
     removeChristmasLightsBtn.addEventListener('click', removeChristmasLights);
 
+    let snowfallGroup = null;
+
+    const snowfallBtn = document.querySelector('.snowfallbtn');
+    const removeSnowfallBtn = document.querySelector('.remsnowfallbtn');
+    removeSnowfallBtn.disabled = true;
+    snowfallBtn.disabled = true;
+    function createSnowfall() {
+      console.log('Snowfall function called');
+      console.log('Background image:', backgroundImage);
+
+      if (!backgroundImage) {
+        console.log('No background image, cannot create snowfall');
+        return;
+      }
+
+      // Remove any existing snowfall
+      if (snowfallGroup) {
+        canvas.remove(snowfallGroup);
+      }
+
+      // Create a new group for snowfall
+      snowfallGroup = new fabric.Group([], {
+        selectable: false,
+        hasControls: false
+      });
+
+      // Number of snowflakes
+      const snowflakeCount = Math.floor(Math.random() * 100) + 100; // 100-200 snowflakes
+      console.log('Creating', snowflakeCount, 'snowflakes');
+
+      for (let i = 0; i < snowflakeCount; i++) {
+        // Random position within the canvas
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+
+        // Create a blurry white circle
+        const snowflake = new fabric.Circle({
+          left: x,
+          top: y,
+          radius: Math.random() * 3 + 2, // Random size between 2-5
+          fill: 'rgba(255, 255, 255, 0.8)', // More opaque white
+          stroke: 'rgba(255, 255, 255, 0.5)', // More visible edge
+          strokeWidth: 1,
+          shadow: new fabric.Shadow({
+            color: 'rgba(255, 255, 255, 0.7)',
+            blur: 10, // Increased blur
+            offsetX: 0,
+            offsetY: 0
+          }),
+          selectable: false
+        });
+
+        // Add to the group
+        snowfallGroup.addWithUpdate(snowflake);
+      }
+
+      // Add snowfall group to canvas
+      canvas.add(snowfallGroup);
+
+      canvas.moveTo(snowfallGroup, canvas.getObjects().length - 1);
+
+      canvas.renderAll();
+      console.log('Snowfall created and rendered');
+
+      // Enable remove snowfall button
+      snowfallBtn.disabled = false;
+      removeSnowfallBtn.disabled = false;
+    }
+
+    function removeSnowfall() {
+      if (snowfallGroup) {
+        canvas.remove(snowfallGroup);
+        snowfallGroup = null;
+        canvas.renderAll();
+
+        snowfallBtn.disabled = false;
+        removeSnowfallBtn.disabled = true;
+      }
+    }
+
+    // Add event listeners
+    snowfallBtn.addEventListener('click', createSnowfall);
+    removeSnowfallBtn.addEventListener('click', removeSnowfall);
+
+
+
     profileUpload.addEventListener('change', function () {
       christmasLightsBtn.disabled = false;
       removeChristmasLightsBtn.disabled = true;
+      snowfallBtn.disabled = false;
     });
   </script>
 </body>
