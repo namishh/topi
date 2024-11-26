@@ -247,7 +247,7 @@
             class="text-white box-shadow-3d rounded-full underline toggleLightsBtn w-12 relative bg-[#C19A6B] py-[2px]">
             <div class="h-full w-6 absolute top-0 rounded-full bg-[#f5deb3] transition tls"></div>
           </button>
-          <button class="text-white underline cycleLightsBtn ml-4">
+          <button class="text-white cycleLightsBtn ml-4">
             Re-roll
           </button>
         </div>
@@ -264,302 +264,382 @@
             class="text-white box-shadow-3d rounded-full underline toggleSnowfallBtn w-12 relative bg-[#C19A6B] py-[2px]">
             <div class="h-full w-6 absolute top-0 rounded-full bg-[#f5deb3] transition tss"></div>
           </button>
-          <button class="text-white underline cycleSnowfallBtn ml-4">
+          <button class="text-white cycleSnowfallBtn ml-4">
             Re-roll
           </button>
         </div>
+        <div
+          class="text-center box-shadow-3d rbutton flex cursor-pointer text-white p-2  gap-4 bg-red-600 im-fell rounded-md  sticky top-0 z-10 wooden-placard relative">
+
+          <input type="file" id="profile-upload" accept="image/*" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 256 256">
+            <path
+              d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z">
+            </path>
+          </svg>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    // Constants
-    const CHRISTMAS_HATS = [
-      './public/hat-1.png', './public/hat-2.png', './public/hat-3.png',
-      './public/hat-4.png', './public/hat-5.png', './public/hat-6.png',
-      './public/hat-7.png', './public/hat-8.png'
-    ];
+    <script>
+      // Constants
+      const CHRISTMAS_HATS = [
+        './public/hat-1.png', './public/hat-2.png', './public/hat-3.png',
+        './public/hat-4.png', './public/hat-5.png', './public/hat-6.png',
+        './public/hat-7.png', './public/hat-8.png'
+      ];
 
-    class TopiApp {
-      constructor() {
-        // Canvas and DOM element references
-        this.canvas = new fabric.Canvas('canvas', { selection: false });
-        this.profileUpload = document.getElementById('profile-upload');
-        this.hatSelection = document.getElementById('hat-selection');
-        this.downloadBtn = document.getElementById('download-btn');
-        this.placeholderText = document.getElementById('placeholder-text');
+      class TopiApp {
+        constructor() {
+          // Canvas and DOM element references
+          this.canvas = new fabric.Canvas('canvas', { selection: false });
+          this.profileUpload = document.getElementById('profile-upload');
+          this.hatSelection = document.getElementById('hat-selection');
+          this.downloadBtn = document.getElementById('download-btn');
+          this.placeholderText = document.getElementById('placeholder-text');
 
-        // State variables
-        this.backgroundImage = null;
-        this.currentHat = null;
-        this.christmasLightsGroup = null;
-        this.snowfallGroup = null;
-        this.hatImages = [];
+          // State variables
+          this.backgroundImage = null;
+          this.currentHat = null;
+          this.christmasLightsGroup = null;
+          this.snowfallGroup = null;
+          this.hatImages = [];
 
-        // Bind methods to maintain correct context
-        this.initializeApp = this.initializeApp.bind(this);
-        this.populateHatSelection = this.populateHatSelection.bind(this);
-        this.handleProfileUpload = this.handleProfileUpload.bind(this);
-        this.loadHat = this.loadHat.bind(this);
-        this.downloadImage = this.downloadImage.bind(this);
-        this.handleKeyDelete = this.handleKeyDelete.bind(this);
+          // Bind methods to maintain correct context
+          this.initializeApp = this.initializeApp.bind(this);
+          this.populateHatSelection = this.populateHatSelection.bind(this);
+          this.handleProfileUpload = this.handleProfileUpload.bind(this);
+          this.loadHat = this.loadHat.bind(this);
+          this.downloadImage = this.downloadImage.bind(this);
+          this.handleKeyDelete = this.handleKeyDelete.bind(this);
 
-        // Effects methods
-        this.createChristmasLights = this.createChristmasLights.bind(this);
-        this.toggleChristmasLights = this.toggleChristmasLights.bind(this);
-        this.createSnowfall = this.createSnowfall.bind(this);
-        this.toggleSnowfall = this.toggleSnowfall.bind(this);
+          // Effects methods
+          this.createChristmasLights = this.createChristmasLights.bind(this);
+          this.toggleChristmasLights = this.toggleChristmasLights.bind(this);
+          this.createSnowfall = this.createSnowfall.bind(this);
+          this.toggleSnowfall = this.toggleSnowfall.bind(this);
 
-        // Utility methods
-        this.cubicBezier = this.cubicBezier.bind(this);
-        this.generateWirePoints = this.generateWirePoints.bind(this);
+          // Utility methods
+          this.cubicBezier = this.cubicBezier.bind(this);
+          this.generateWirePoints = this.generateWirePoints.bind(this);
 
-        // Initialize the app
-        this.initializeApp();
-      }
+          // Initialize the app
+          this.initializeApp();
+        }
 
-      initializeApp() {
-        this.populateHatSelection();
-        this.setupEventListeners();
-      }
+        initializeApp() {
+          this.populateHatSelection();
+          this.setupEventListeners();
+        }
 
-      populateHatSelection() {
-        CHRISTMAS_HATS.forEach((hatUrl) => {
+        populateHatSelection() {
+          CHRISTMAS_HATS.forEach((hatUrl) => {
+            const resolvedPath = !window.location.hostname.startsWith("namishh.github.io")
+              ? hatUrl.replace("./public", "/public")
+              : hatUrl;
+
+            const img = document.createElement('img');
+            img.src = resolvedPath;
+            img.classList.add('disabled', 'w-20', 'p-2', 'self-center', 'cursor-pointer', 'hover:scale-110', 'transition-transform');
+            img.onclick = () => this.loadHat(hatUrl);
+            this.hatSelection.appendChild(img);
+            this.hatImages.push(img);
+          });
+        }
+
+        setupEventListeners() {
+          this.profileUpload.addEventListener('change', this.handleProfileUpload);
+
+          this.downloadBtn.addEventListener('click', this.downloadImage);
+
+          document.addEventListener('keydown', this.handleKeyDelete);
+
+          document.querySelector('.toggleLightsBtn').addEventListener('click', this.toggleChristmasLights);
+          document.querySelector('.cycleLightsBtn').addEventListener('click', this.createChristmasLights);
+
+          document.querySelector('.toggleSnowfallBtn').addEventListener('click', this.toggleSnowfall);
+          document.querySelector('.cycleSnowfallBtn').addEventListener('click', this.createSnowfall);
+
+          document.querySelector('.rbutton').addEventListener('click', () => {
+              this.canvas.remove(this.currentHat);
+              this.currentHat = null;
+              this.backgroundImage = null
+              this.downloadBtn.disabled = true;
+
+              // Show placeholder text if no image is present
+              if (!this.backgroundImage) {
+                this.placeholderText.style.display = 'block';
+              }
+
+              this.canvas.clear();
+            })
+        }
+
+        handleProfileUpload(e) {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            fabric.Image.fromURL(event.target.result, (img) => {
+              const scaleFactor = this.canvas.width / img.width;
+              img.scale(scaleFactor);
+              img.set({
+                left: this.canvas.width / 2,
+                top: this.canvas.height / 2,
+                originX: 'center',
+                originY: 'center',
+                selectable: false,
+                hasControls: false
+              });
+
+              this.canvas.clear();
+              this.canvas.add(img);
+              this.backgroundImage = img;
+
+              // Hide placeholder text
+              this.placeholderText.style.display = 'none';
+
+              // Enable hat selection
+              this.hatImages.forEach(img => img.classList.remove('disabled'));
+
+              // Enable effect buttons
+              this.updateEffectButtonStates(true);
+
+              this.canvas.renderAll();
+            });
+          };
+
+          reader.readAsDataURL(file);
+        }
+
+        updateEffectButtonStates(enabled) {
+          const effectButtons = [
+            '.toggleLightsBtn',
+            '.cycleLightsBtn',
+            '.toggleSnowfallBtn',
+            '.cycleSnowfallBtn'
+          ];
+
+          effectButtons.forEach(selector => {
+            const btn = document.querySelector(selector);
+            btn.disabled = !enabled;
+          });
+        }
+
+        loadHat(hatUrl) {
+          // Check if a profile image is uploaded
+          if (!this.backgroundImage) return;
+
           const resolvedPath = !window.location.hostname.startsWith("namishh.github.io")
             ? hatUrl.replace("./public", "/public")
             : hatUrl;
 
-          const img = document.createElement('img');
-          img.src = resolvedPath;
-          img.classList.add('disabled', 'w-20', 'p-2', 'self-center', 'cursor-pointer', 'hover:scale-110', 'transition-transform');
-          img.onclick = () => this.loadHat(hatUrl);
-          this.hatSelection.appendChild(img);
-          this.hatImages.push(img);
-        });
-      }
+          fabric.Image.fromURL(resolvedPath, (hat) => {
+            // Remove previous hat
+            if (this.currentHat) {
+              this.canvas.remove(this.currentHat);
+            }
 
-      setupEventListeners() {
-        this.profileUpload.addEventListener('change', this.handleProfileUpload);
-
-        this.downloadBtn.addEventListener('click', this.downloadImage);
-
-        document.addEventListener('keydown', this.handleKeyDelete);
-
-        document.querySelector('.toggleLightsBtn').addEventListener('click', this.toggleChristmasLights);
-        document.querySelector('.cycleLightsBtn').addEventListener('click', this.createChristmasLights);
-
-        document.querySelector('.toggleSnowfallBtn').addEventListener('click', this.toggleSnowfall);
-        document.querySelector('.cycleSnowfallBtn').addEventListener('click', this.createSnowfall);
-      }
-
-      handleProfileUpload(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-          fabric.Image.fromURL(event.target.result, (img) => {
-            const scaleFactor = this.canvas.width / img.width;
-            img.scale(scaleFactor);
-            img.set({
+            // Scale hat to reasonable size
+            const scaleFactor = this.canvas.width / (hat.width * 3);
+            hat.scale(scaleFactor);
+            hat.set({
               left: this.canvas.width / 2,
-              top: this.canvas.height / 2,
+              top: this.canvas.height / 4,
               originX: 'center',
               originY: 'center',
-              selectable: false,
-              hasControls: false
+              cornerColor: '#3b82f6',
+              cornerStyle: 'circle',
+              borderColor: '#3b82f6',
+              cornerSize: 12,
+              selectable: true,
+              hasControls: true,
+              hasBorders: true,
+              transparentCorners: false,
+              lockUniScaling: false,
+              centeredScaling: true
             });
 
-            this.canvas.clear();
-            this.canvas.add(img);
-            this.backgroundImage = img;
+            this.canvas.add(hat);
+            hat.moveTo(this.canvas.getObjects().length - 1);
+            this.canvas.setActiveObject(hat);
+            this.currentHat = hat;
 
-            // Hide placeholder text
-            this.placeholderText.style.display = 'none';
-
-            // Enable hat selection
-            this.hatImages.forEach(img => img.classList.remove('disabled'));
-
-            // Enable effect buttons
-            this.updateEffectButtonStates(true);
-
+            this.downloadBtn.disabled = false;
             this.canvas.renderAll();
           });
-        };
+        }
 
-        reader.readAsDataURL(file);
-      }
-
-      updateEffectButtonStates(enabled) {
-        const effectButtons = [
-          '.toggleLightsBtn',
-          '.cycleLightsBtn',
-          '.toggleSnowfallBtn',
-          '.cycleSnowfallBtn'
-        ];
-
-        effectButtons.forEach(selector => {
-          const btn = document.querySelector(selector);
-          btn.disabled = !enabled;
-        });
-      }
-
-      loadHat(hatUrl) {
-        // Check if a profile image is uploaded
-        if (!this.backgroundImage) return;
-
-        const resolvedPath = !window.location.hostname.startsWith("namishh.github.io")
-          ? hatUrl.replace("./public", "/public")
-          : hatUrl;
-
-        fabric.Image.fromURL(resolvedPath, (hat) => {
-          // Remove previous hat
-          if (this.currentHat) {
+        handleKeyDelete(event) {
+          if ((event.key === 'Delete' || event.key === 'Backspace') && this.currentHat) {
             this.canvas.remove(this.currentHat);
+            this.currentHat = null;
+            this.downloadBtn.disabled = true;
+
+            // Show placeholder text if no image is present
+            if (!this.backgroundImage) {
+              this.placeholderText.style.display = 'block';
+            }
+
+            this.canvas.renderAll();
+          }
+        }
+
+        downloadImage() {
+          // Temporarily hide object controls
+          this.canvas.discardActiveObject();
+          this.canvas.renderAll();
+
+          // Download image
+          const dataURL = this.canvas.toDataURL({
+            format: 'png',
+            quality: 1
+          });
+          const link = document.createElement('a');
+          link.download = 'christmas-profile-pic.png';
+          link.href = dataURL;
+          link.click();
+        }
+
+        generateWirePoints(canvas, yPosition, isTop) {
+          const numberOfPoints = 4;
+          const wirePoints = [];
+
+          for (let i = 0; i < numberOfPoints; i++) {
+            let x = Math.random() * canvas.width;
+            if (i === 0) x = 0;
+            else if (i === numberOfPoints - 1) x = canvas.width;
+
+            const y = yPosition + (Math.random() * 60 - 30) * (isTop ? 1 : -1);
+            wirePoints.push({ x, y });
           }
 
-          // Scale hat to reasonable size
-          const scaleFactor = this.canvas.width / (hat.width * 3);
-          hat.scale(scaleFactor);
-          hat.set({
-            left: this.canvas.width / 2,
-            top: this.canvas.height / 4,
-            originX: 'center',
-            originY: 'center',
-            cornerColor: '#3b82f6',
-            cornerStyle: 'circle',
-            borderColor: '#3b82f6',
-            cornerSize: 12,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            transparentCorners: false,
-            lockUniScaling: false,
-            centeredScaling: true
+          return wirePoints.sort((a, b) => a.x - b.x);
+        }
+
+        cubicBezier(p0, p1, p2, p3, t) {
+          const u = 1 - t;
+          const tt = t * t;
+          const uu = u * u;
+          const uuu = uu * u;
+          const ttt = tt * t;
+
+          return uuu * p0 +
+            3 * uu * t * p1 +
+            3 * u * tt * p2 +
+            ttt * p3;
+        }
+
+        createChristmasLights() {
+          if (!this.backgroundImage) return;
+
+          // Remove existing lights
+          if (this.christmasLightsGroup) {
+            this.canvas.remove(this.christmasLightsGroup);
+          }
+
+          const lightColors = ['#e02d51', '#2d51e0', '#2de06f', '#e0a42d'];
+          const strandCount = Math.floor(Math.random() * 3) + 5;
+
+          this.christmasLightsGroup = new fabric.Group([], {
+            selectable: false,
+            hasControls: false,
+            evented: false
           });
 
-          this.canvas.add(hat);
-          hat.moveTo(this.canvas.getObjects().length - 1);
-          this.canvas.setActiveObject(hat);
-          this.currentHat = hat;
+          for (let i = 0; i < strandCount; i++) {
+            const isTop = Math.random() < 0.5;
+            const yPosition = isTop ? 40 : this.canvas.height - 40;
+            const wirePoints = this.generateWirePoints(this.canvas, yPosition, isTop);
 
-          this.downloadBtn.disabled = false;
-          this.canvas.renderAll();
-        });
-      }
+            // Create wire
+            const wire = new fabric.Path(
+              `M ${wirePoints[0].x} ${wirePoints[0].y} ` +
+              `C ${wirePoints[1].x} ${wirePoints[1].y}, ${wirePoints[2].x} ${wirePoints[2].y}, ${wirePoints[3].x} ${wirePoints[3].y}`,
+              {
+                stroke: '#333333',
+                strokeWidth: 2,
+                fill: false,
+                selectable: false
+              }
+            );
 
-      handleKeyDelete(event) {
-        if ((event.key === 'Delete' || event.key === 'Backspace') && this.currentHat) {
-          this.canvas.remove(this.currentHat);
-          this.currentHat = null;
-          this.downloadBtn.disabled = true;
+            this.christmasLightsGroup.addWithUpdate(wire);
 
-          // Show placeholder text if no image is present
-          if (!this.backgroundImage) {
-            this.placeholderText.style.display = 'block';
+            // Create lights
+            const lightCount = Math.floor(Math.random() * 10) + 5;
+            for (let j = 0; j < lightCount; j++) {
+              const t = j / (lightCount - 1);
+              const x = this.cubicBezier(wirePoints[0].x, wirePoints[1].x, wirePoints[2].x, wirePoints[3].x, t);
+              const y = this.cubicBezier(wirePoints[0].y, wirePoints[1].y, wirePoints[2].y, wirePoints[3].y, t);
+
+              const lightColor = lightColors[Math.floor(Math.random() * lightColors.length)];
+              const light = new fabric.Circle({
+                left: x,
+                top: y,
+                radius: 4,
+                fill: lightColor,
+                stroke: lightColor,
+                strokeWidth: 2,
+                shadow: new fabric.Shadow({
+                  color: lightColor,
+                  blur: 10,
+                  offsetX: 0,
+                  offsetY: 0
+                }),
+                selectable: false
+              });
+
+              this.christmasLightsGroup.addWithUpdate(light);
+            }
           }
 
+          this.canvas.add(this.christmasLightsGroup);
+          this.canvas.moveTo(this.christmasLightsGroup, this.canvas.getObjects().length - 1);
           this.canvas.renderAll();
         }
-      }
 
-      downloadImage() {
-        // Temporarily hide object controls
-        this.canvas.discardActiveObject();
-        this.canvas.renderAll();
-
-        // Download image
-        const dataURL = this.canvas.toDataURL({
-          format: 'png',
-          quality: 1
-        });
-        const link = document.createElement('a');
-        link.download = 'christmas-profile-pic.png';
-        link.href = dataURL;
-        link.click();
-      }
-
-      generateWirePoints(canvas, yPosition, isTop) {
-        const numberOfPoints = 4;
-        const wirePoints = [];
-
-        for (let i = 0; i < numberOfPoints; i++) {
-          let x = Math.random() * canvas.width;
-          if (i === 0) x = 0;
-          else if (i === numberOfPoints - 1) x = canvas.width;
-
-          const y = yPosition + (Math.random() * 60 - 30) * (isTop ? 1 : -1);
-          wirePoints.push({ x, y });
+        toggleChristmasLights() {
+          document.querySelector('.tls').classList.toggle("translate-x-6")
+          if (this.christmasLightsGroup) {
+            this.canvas.remove(this.christmasLightsGroup);
+            this.christmasLightsGroup = null;
+          } else {
+            this.createChristmasLights();
+          }
+          this.canvas.renderAll();
         }
 
-        return wirePoints.sort((a, b) => a.x - b.x);
-      }
+        createSnowfall() {
+          if (!this.backgroundImage) return;
 
-      cubicBezier(p0, p1, p2, p3, t) {
-        const u = 1 - t;
-        const tt = t * t;
-        const uu = u * u;
-        const uuu = uu * u;
-        const ttt = tt * t;
+          // Remove existing snowfall
+          if (this.snowfallGroup) {
+            this.canvas.remove(this.snowfallGroup);
+          }
 
-        return uuu * p0 +
-          3 * uu * t * p1 +
-          3 * u * tt * p2 +
-          ttt * p3;
-      }
+          // Create new snowfall group
+          this.snowfallGroup = new fabric.Group([], {
+            selectable: false,
+            hasControls: false,
+            evented: false
+          });
 
-      createChristmasLights() {
-        if (!this.backgroundImage) return;
+          const snowflakeCount = Math.floor(Math.random() * 100) + 100;
 
-        // Remove existing lights
-        if (this.christmasLightsGroup) {
-          this.canvas.remove(this.christmasLightsGroup);
-        }
+          for (let i = 0; i < snowflakeCount; i++) {
+            const x = Math.random() * this.canvas.width;
+            const y = Math.random() * this.canvas.height;
 
-        const lightColors = ['#e02d51', '#2d51e0', '#2de06f', '#e0a42d'];
-        const strandCount = Math.floor(Math.random() * 3) + 5;
-
-        this.christmasLightsGroup = new fabric.Group([], {
-          selectable: false,
-          hasControls: false,
-          evented: false
-        });
-
-        for (let i = 0; i < strandCount; i++) {
-          const isTop = Math.random() < 0.5;
-          const yPosition = isTop ? 40 : this.canvas.height - 40;
-          const wirePoints = this.generateWirePoints(this.canvas, yPosition, isTop);
-
-          // Create wire
-          const wire = new fabric.Path(
-            `M ${wirePoints[0].x} ${wirePoints[0].y} ` +
-            `C ${wirePoints[1].x} ${wirePoints[1].y}, ${wirePoints[2].x} ${wirePoints[2].y}, ${wirePoints[3].x} ${wirePoints[3].y}`,
-            {
-              stroke: '#333333',
-              strokeWidth: 2,
-              fill: false,
-              selectable: false
-            }
-          );
-
-          this.christmasLightsGroup.addWithUpdate(wire);
-
-          // Create lights
-          const lightCount = Math.floor(Math.random() * 10) + 5;
-          for (let j = 0; j < lightCount; j++) {
-            const t = j / (lightCount - 1);
-            const x = this.cubicBezier(wirePoints[0].x, wirePoints[1].x, wirePoints[2].x, wirePoints[3].x, t);
-            const y = this.cubicBezier(wirePoints[0].y, wirePoints[1].y, wirePoints[2].y, wirePoints[3].y, t);
-
-            const lightColor = lightColors[Math.floor(Math.random() * lightColors.length)];
-            const light = new fabric.Circle({
+            const snowflake = new fabric.Circle({
               left: x,
               top: y,
-              radius: 4,
-              fill: lightColor,
-              stroke: lightColor,
-              strokeWidth: 2,
+              radius: Math.random() * 3 + 2,
+              fill: 'rgba(255, 255, 255, 0.8)',
+              stroke: 'rgba(255, 255, 255, 0.5)',
+              strokeWidth: 1,
               shadow: new fabric.Shadow({
-                color: lightColor,
+                color: 'rgba(255, 255, 255, 0.7)',
                 blur: 10,
                 offsetX: 0,
                 offsetY: 0
@@ -567,88 +647,31 @@
               selectable: false
             });
 
-            this.christmasLightsGroup.addWithUpdate(light);
+            this.snowfallGroup.addWithUpdate(snowflake);
           }
+
+          this.canvas.add(this.snowfallGroup);
+          this.canvas.moveTo(this.snowfallGroup, this.canvas.getObjects().length - 1);
+          this.canvas.renderAll();
         }
 
-        this.canvas.add(this.christmasLightsGroup);
-        this.canvas.moveTo(this.christmasLightsGroup, this.canvas.getObjects().length - 1);
-        this.canvas.renderAll();
+        toggleSnowfall() {
+          document.querySelector('.tss').classList.toggle("translate-x-6")
+          if (this.snowfallGroup) {
+            this.canvas.remove(this.snowfallGroup);
+            this.snowfallGroup = null;
+          } else {
+            this.createSnowfall();
+          }
+          this.canvas.renderAll();
+        }
       }
 
-      toggleChristmasLights() {
-        document.querySelector('.tls').classList.toggle("translate-x-6")
-        if (this.christmasLightsGroup) {
-          this.canvas.remove(this.christmasLightsGroup);
-          this.christmasLightsGroup = null;
-        } else {
-          this.createChristmasLights();
-        }
-        this.canvas.renderAll();
-      }
-
-      createSnowfall() {
-        if (!this.backgroundImage) return;
-
-        // Remove existing snowfall
-        if (this.snowfallGroup) {
-          this.canvas.remove(this.snowfallGroup);
-        }
-
-        // Create new snowfall group
-        this.snowfallGroup = new fabric.Group([], {
-          selectable: false,
-          hasControls: false,
-          evented: false
-        });
-
-        const snowflakeCount = Math.floor(Math.random() * 100) + 100;
-
-        for (let i = 0; i < snowflakeCount; i++) {
-          const x = Math.random() * this.canvas.width;
-          const y = Math.random() * this.canvas.height;
-
-          const snowflake = new fabric.Circle({
-            left: x,
-            top: y,
-            radius: Math.random() * 3 + 2,
-            fill: 'rgba(255, 255, 255, 0.8)',
-            stroke: 'rgba(255, 255, 255, 0.5)',
-            strokeWidth: 1,
-            shadow: new fabric.Shadow({
-              color: 'rgba(255, 255, 255, 0.7)',
-              blur: 10,
-              offsetX: 0,
-              offsetY: 0
-            }),
-            selectable: false
-          });
-
-          this.snowfallGroup.addWithUpdate(snowflake);
-        }
-
-        this.canvas.add(this.snowfallGroup);
-        this.canvas.moveTo(this.snowfallGroup, this.canvas.getObjects().length - 1);
-        this.canvas.renderAll();
-      }
-
-      toggleSnowfall() {
-        document.querySelector('.tss').classList.toggle("translate-x-6")
-        if (this.snowfallGroup) {
-          this.canvas.remove(this.snowfallGroup);
-          this.snowfallGroup = null;
-        } else {
-          this.createSnowfall();
-        }
-        this.canvas.renderAll();
-      }
-    }
-
-    // Initialize the app when the DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      const topiApp = new TopiApp();
-    });
-  </script>
+      // Initialize the app when the DOM is fully loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        const topiApp = new TopiApp();
+      });
+    </script>
 </body>
 
 </html>
