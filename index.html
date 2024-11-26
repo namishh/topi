@@ -373,10 +373,8 @@
     }
 
     function createChristmasLights() {
-      // Only add lights if there's a background image
       if (!backgroundImage) return;
 
-      // Remove existing lights if any
       if (christmasLightsGroup) {
         canvas.remove(christmasLightsGroup);
       }
