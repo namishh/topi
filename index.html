@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Christmas Hat Editor</title>
+  <title>Topi</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,7 +81,8 @@
     }
 
     #hat-selection {
-          scrollbar-width: none;  /* Firefox */
+      scrollbar-width: none;
+      /* Firefox */
     }
 
     #hat-selection::-webkit-scrollbar-thumb {
@@ -372,7 +373,7 @@
         const y =
           yPosition + (Math.random() * 60 - 30) * (isTop ? 1 : -1); // Random y offset based on isTop
 
-        wirePoints.push({ x, y });
+        wirePoints.push({x, y});
       }
 
       wirePoints.sort((a, b) => a.x - b.x);
