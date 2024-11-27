@@ -321,21 +321,18 @@
 
       class TopiApp {
         constructor() {
-          // Canvas and DOM element references
-          this.canvas = new fabric.Canvas('canvas', { selection: false });
+          this.canvas = new fabric.Canvas('canvas', { selection: true });
           this.profileUpload = document.getElementById('profile-upload');
           this.hatSelection = document.getElementById('hat-selection');
           this.downloadBtn = document.getElementById('download-btn');
           this.placeholderText = document.getElementById('placeholder-text');
 
-          // State variables
           this.backgroundImage = null;
-          this.currentHat = null;
+          this.hats = [];
           this.christmasLightsGroup = null;
           this.snowfallGroup = null;
           this.hatImages = [];
 
-          // Bind methods to maintain correct context
           this.initializeApp = this.initializeApp.bind(this);
           this.populateHatSelection = this.populateHatSelection.bind(this);
           this.handleProfileUpload = this.handleProfileUpload.bind(this);
@@ -343,17 +340,14 @@
           this.downloadImage = this.downloadImage.bind(this);
           this.handleKeyDelete = this.handleKeyDelete.bind(this);
 
-          // Effects methods
           this.createChristmasLights = this.createChristmasLights.bind(this);
           this.toggleChristmasLights = this.toggleChristmasLights.bind(this);
           this.createSnowfall = this.createSnowfall.bind(this);
           this.toggleSnowfall = this.toggleSnowfall.bind(this);
 
-          // Utility methods
           this.cubicBezier = this.cubicBezier.bind(this);
           this.generateWirePoints = this.generateWirePoints.bind(this);
 
-          // Initialize the app
           this.initializeApp();
         }
 
@@ -391,9 +385,10 @@
           document.querySelector('.cycleSnowfallBtn').addEventListener('click', this.createSnowfall);
 
           document.querySelector('.rbutton').addEventListener('click', () => {
-            this.canvas.remove(this.currentHat);
-            this.currentHat = null;
-            this.backgroundImage = null
+            // Remove all hats
+            this.hats.forEach(hat => this.canvas.remove(hat));
+            this.hats = [];
+            this.backgroundImage = null;
             this.downloadBtn.disabled = true;
 
             if (!this.backgroundImage) {
@@ -401,14 +396,13 @@
             }
 
             this.canvas.clear();
-          })
+          });
 
           document.querySelector('.canvas-container').addEventListener('click', () => {
             if (!this.backgroundImage) {
               this.profileUpload.click();
             }
           });
-
         }
 
         handleProfileUpload(e) {
@@ -471,11 +465,6 @@
             : hatUrl;
 
           fabric.Image.fromURL(resolvedPath, (hat) => {
-            // Remove previous hat
-            if (this.currentHat) {
-              this.canvas.remove(this.currentHat);
-            }
-
             // Scale hat to reasonable size
             const scaleFactor = this.canvas.width / (hat.width * 3);
             hat.scale(scaleFactor);
@@ -497,9 +486,8 @@
             });
 
             this.canvas.add(hat);
-            hat.moveTo(this.canvas.getObjects().length - 1);
+            this.hats.push(hat);
             this.canvas.setActiveObject(hat);
-            this.currentHat = hat;
 
             this.downloadBtn.disabled = false;
             this.canvas.renderAll();
@@ -507,16 +495,31 @@
         }
 
         handleKeyDelete(event) {
-          if ((event.key === 'Delete' || event.key === 'Backspace') && this.currentHat) {
-            this.canvas.remove(this.currentHat);
-            this.currentHat = null;
-            this.downloadBtn.disabled = true;
+          if ((event.key === 'Delete' || event.key === 'Backspace')) {
+            const activeObjects = this.canvas.getActiveObjects();
+
+            activeObjects.forEach(obj => {
+              // Remove the hat from our hats array
+              const index = this.hats.indexOf(obj);
+              if (index !== -1) {
+                this.hats.splice(index, 1);
+              }
+
+              // Remove the object from the canvas
+              this.canvas.remove(obj);
+            });
+
+            // Disable download button if no hats remain
+            if (this.hats.length === 0) {
+              this.downloadBtn.disabled = true;
+            }
 
             // Show placeholder text if no image is present
             if (!this.backgroundImage) {
               this.placeholderText.style.display = 'block';
             }
 
+            this.canvas.discardActiveObject();
             this.canvas.renderAll();
           }
         }
