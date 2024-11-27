@@ -165,11 +165,41 @@
         3px 3px 0px #48341f,
         4px 4px 0px #48341f;
     }
+
+    .light-string {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .light-bulb {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px;
+      transition: opacity 0.5s ease;
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 
 <body class="bg-neutral-100 im-fell relative">
-  <div class="fixed top-4 left-4 bg-black text-white px-2">
+  <div class="fixed top-4 z-[2000] left-4 bg-black text-white px-2">
     <a href="https://x.com/namishh_">x dot com (pls follow)</a>
   </div>
   <svg class="hand-drawn-grid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%">
@@ -375,7 +405,7 @@
 
           document.querySelector('.canvas-container').addEventListener('click', () => {
             if (!this.backgroundImage) {
-            this.profileUpload.click();
+              this.profileUpload.click();
             }
           });
 
@@ -673,9 +703,69 @@
         }
       }
 
-      // Initialize the app when the DOM is fully loaded
       document.addEventListener('DOMContentLoaded', () => {
         const topiApp = new TopiApp();
+      });
+
+      function createLightString() {
+        const lightString = document.createElement('div');
+        lightString.classList.add('light-string');
+
+        const colors = ['#e02d51', '#2d51e0', '#2de06f', '#e0a42d'];
+        const numLights = 55;
+
+        // Create SVG curve behind the lights
+        const curveSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        curveSvg.setAttribute('class', 'absolute top-0 left-0 w-full pointer-events-none z-0');
+        curveSvg.setAttribute('height', '100');
+
+        const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const pathData = `M0,20 Q${window.innerWidth / 2},50 ${window.innerWidth},20`;
+        curvePath.setAttribute('d', pathData);
+        curvePath.setAttribute('fill', 'none');
+        curvePath.setAttribute('stroke', '#333');
+        curvePath.setAttribute('stroke-width', '1');
+        curvePath.setAttribute('stroke-dasharray', '2,2');
+
+        curveSvg.appendChild(curvePath);
+        lightString.appendChild(curveSvg);
+
+        const pathLength = curvePath.getTotalLength();
+        const spacing = pathLength / (numLights + 1);
+
+        for (let i = 0; i < numLights; i++) {
+          const bulb = document.createElement('div');
+          bulb.classList.add('light-bulb');
+
+          const point = curvePath.getPointAtLength(i * spacing);
+
+          const offsetY = 3; // Offset below the curve for the hanging effect
+          bulb.style.left = `${point.x}px`;
+          bulb.style.top = `${point.y + offsetY}px`;
+
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          bulb.style.backgroundColor = color;
+          bulb.style.boxShadow = `0 0 15px ${color}`;
+
+          bulb.style.animationName = 'glow';
+          bulb.style.animationDuration = '2s';
+          bulb.style.animationIterationCount = 'infinite';
+          bulb.style.animationDelay = `${Math.random() * 2}s`;
+
+          lightString.appendChild(bulb);
+        }
+
+        document.body.appendChild(lightString);
+      }
+
+      document.addEventListener('DOMContentLoaded', createLightString);
+
+      window.addEventListener('resize', () => {
+        const existingLightString = document.querySelector('.light-string');
+        if (existingLightString) {
+          existingLightString.remove();
+        }
+        createLightString();
       });
     </script>
 </body>
