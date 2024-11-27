@@ -391,6 +391,12 @@
             this.backgroundImage = null;
             this.downloadBtn.disabled = true;
 
+            this.christmasLightsGroup = null;
+            document.querySelector('.tls').classList.remove("translate-x-6")
+
+            this.snowfallGroup = null 
+            document.querySelector('.tss').classList.remove("translate-x-6")
+
             if (!this.backgroundImage) {
               this.placeholderText.style.display = 'block';
             }
@@ -431,6 +437,12 @@
 
               // Enable hat selection
               this.hatImages.forEach(img => img.classList.remove('disabled'));
+
+              this.christmasLightsGroup = null;
+              document.querySelector('.tls').classList.remove("translate-x-6")
+
+              this.snowfallGroup = null 
+              document.querySelector('.tss').classList.remove("translate-x-6")
 
               // Enable effect buttons
               this.updateEffectButtonStates(true);
